@@ -47,17 +47,13 @@ Identifier = [A-Za-z_][A-Za-z_0-9]*
  */
 
 /* Replace this placeholder with your own definitions */
-DecIntegerLiteral = [1-9][0-9]*
-OctIntegerLiteral = 0 | 0[1-7][0-7]*
-HexIntegerLiteral = 0[xX][1-9a-fA-F][0-9a-fA-F]*
+DecIntegerLiteral = [1-9][0-9]*[uU]?
+OctIntegerLiteral = 0 | 0[1-7][0-7]*[uU]?
+HexIntegerLiteral = 0[xX][1-9a-fA-F][0-9a-fA-F]*[uU]?
 
-LongDecIntegerLiteral = {DecIntegerLiteral} [lL]
-LongOctIntegerLiteral = {OctIntegerLiteral} [lL]
-LongHexIntegerLiteral = {HexIntegerLiteral} [lL]
-
-UnsignDecIntegerLiteral = {DecIntegerLiteral} [uU]
-UnsignOctIntegerLiteral = {OctIntegerLiteral} [uU]
-UnsignHexIntegerLiteral = {HexIntegerLiteral} [uU]
+LongDecIntegerLiteral = {DecIntegerLiteral} ( [lL] | [uU][lL] | [lL][uU] )
+LongOctIntegerLiteral = {OctIntegerLiteral} ( [lL] | [uU][lL] | [lL][uU] )
+LongHexIntegerLiteral = {HexIntegerLiteral} ( [lL] | [uU][lL] | [lL][uU] )
 
 /* Floating point literals: TODO - handle floating point literals as 
  * described in Section 6.4.4.2 of the ANSI C document. For
@@ -112,19 +108,14 @@ DoubleLiteral  = [0-9]+ \. [0-9]*
    */
 
   /* replace this placeholder with your own definitions */
-  {DecIntegerLiteral}            { return symbol(INTEGER_LITERAL, Integer.valueOf(yytext(),10)); }
-  {HexIntegerLiteral}            { return symbol(INTEGER_LITERAL, Integer.valueOf(yytext().substring(2),16)); }
-  {OctIntegerLiteral}            { return symbol(INTEGER_LITERAL, Integer.valueOf(yytext().substring(1),8)); }
-  
-  // Ignore unsigned, Java doesn't support
-  {UnsignDecIntegerLiteral}            { return symbol(INTEGER_LITERAL, Integer.valueOf(yytext().substring(0,yytext().length()-1),10)); }
-  {UnsignHexIntegerLiteral}            { return symbol(INTEGER_LITERAL, Integer.valueOf(yytext().substring(2,yytext().length()-1),16)); }
-  {UnsignOctIntegerLiteral}            { return symbol(INTEGER_LITERAL, Integer.valueOf(yytext().substring(1,yytext().length()-1),8)); }
+  {DecIntegerLiteral}            { return symbol(INTEGER_LITERAL, Integer.valueOf(yytext().replaceAll("[uU]",""),10)); }
+  {HexIntegerLiteral}            { return symbol(INTEGER_LITERAL, Integer.valueOf(yytext().replaceAll("[uU]","").substring(2),16)); }
+  {OctIntegerLiteral}            { return symbol(INTEGER_LITERAL, Integer.valueOf(yytext().replaceAll("[uU]","").substring(1),8)); }
   
   // Longs
-  {LongDecIntegerLiteral}            { return symbol(INTEGER_LITERAL, Long.valueOf(yytext().substring(0,yytext().length()-1),10)); }
-  {LongHexIntegerLiteral}            { return symbol(INTEGER_LITERAL, Long.valueOf(yytext().substring(2,yytext().length()-1),16)); }
-  {LongOctIntegerLiteral}            { return symbol(INTEGER_LITERAL, Long.valueOf(yytext().substring(1,yytext().length()-1),8)); }
+  {LongDecIntegerLiteral}            { return symbol(INTEGER_LITERAL, Long.valueOf(yytext().replaceAll("[uUlL]","").substring(0),10)); }
+  {LongHexIntegerLiteral}            { return symbol(INTEGER_LITERAL, Long.valueOf(yytext().replaceAll("[uUlL]","").substring(2),16)); }
+  {LongOctIntegerLiteral}            { return symbol(INTEGER_LITERAL, Long.valueOf(yytext().replaceAll("[uUlL]","").substring(1),8)); }
 
   /* Floating-point literals: TODO - for any such literal, the token
    * type should be FLOATING_POINT_LITERAL, as shown below. The
