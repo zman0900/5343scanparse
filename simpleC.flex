@@ -67,7 +67,11 @@ LongHexIntegerLiteral = {HexInteger} ( [lL] | [uU][lL] | [lL][uU] )
  */        
 
 /* Replace this placeholder with your own definitions */
-DoubleLiteral  = [0-9]+ \. [0-9]* 
+ExponentPart = [eE][+-]?[0-9]+
+Float = [0-9]+ ( \. [0-9]* {ExponentPart}? | {ExponentPart} )
+
+DoubleLiteral = {Float} [lL]?
+FloatLiteral = {Float} [fF]
 
 %%
 
@@ -133,7 +137,8 @@ DoubleLiteral  = [0-9]+ \. [0-9]*
    */
 
   /* replace this placeholder with your own definitions */
-  {DoubleLiteral}                { return symbol(FLOATING_POINT_LITERAL, new Double(yytext())); }
+  {DoubleLiteral}                { return symbol(FLOATING_POINT_LITERAL, Double.valueOf(yytext().replaceAll("[lL]",""))); }
+  {FloatLiteral}                { return symbol(FLOATING_POINT_LITERAL, Float.valueOf(yytext())); }
   
   /* whitespace */
   {WhiteSpace}                   { /* ignore */ }
