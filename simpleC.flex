@@ -47,13 +47,17 @@ Identifier = [A-Za-z_][A-Za-z_0-9]*
  */
 
 /* Replace this placeholder with your own definitions */
-DecIntegerLiteral = [1-9][0-9]*[uU]?
-OctIntegerLiteral = 0 | 0[1-7][0-7]*[uU]?
-HexIntegerLiteral = 0[xX][1-9a-fA-F][0-9a-fA-F]*[uU]?
+DecInteger = [1-9][0-9]*
+OctInteger = 0 | 0[1-7][0-7]*
+HexInteger = 0[xX][1-9a-fA-F][0-9a-fA-F]*
 
-LongDecIntegerLiteral = {DecIntegerLiteral} ( [lL] | [uU][lL] | [lL][uU] )
-LongOctIntegerLiteral = {OctIntegerLiteral} ( [lL] | [uU][lL] | [lL][uU] )
-LongHexIntegerLiteral = {HexIntegerLiteral} ( [lL] | [uU][lL] | [lL][uU] )
+DecIntegerLiteral = {DecInteger} [uU]?
+OctIntegerLiteral = {OctInteger} [uU]?
+HexIntegerLiteral = {HexInteger} [uU]?
+
+LongDecIntegerLiteral = {DecInteger} ( [lL] | [uU][lL] | [lL][uU] )
+LongOctIntegerLiteral = {OctInteger} ( [lL] | [uU][lL] | [lL][uU] )
+LongHexIntegerLiteral = {HexInteger} ( [lL] | [uU][lL] | [lL][uU] )
 
 /* Floating point literals: TODO - handle floating point literals as 
  * described in Section 6.4.4.2 of the ANSI C document. For
