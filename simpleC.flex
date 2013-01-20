@@ -47,7 +47,11 @@ Identifier = [A-Za-z_][A-Za-z_0-9]*
  */
 
 /* Replace this placeholder with your own definitions */
-DecIntegerLiteral = 0 | [1-9][0-9]*
+DecIntegerLiteral = ( 0 |
+                      [1-9][0-9]* |
+                      0[1-7][0-7]* |
+                      0[xX][1-9a-fA-F][0-9a-fA-F]*
+                     ) [lLuU]?
 
 /* Floating point literals: TODO - handle floating point literals as 
  * described in Section 6.4.4.2 of the ANSI C document. For
