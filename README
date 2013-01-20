@@ -1,5 +1,10 @@
-java JFlex.Main simpleC.flex
-java java_cup.Main -interface < simpleC.cup
-javac MyLexer.java
-java MyLexer 1d-jacobi.c
+CSE5343 Project 1
+Dan Ziemba
+
+To build:
+Ensure JFlex and java_cup are in classpath
+Run make
+
+To run:
+java MyLexer <file.c>
 
