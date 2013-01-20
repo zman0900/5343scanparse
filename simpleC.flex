@@ -47,8 +47,8 @@ Identifier = [A-Za-z_][A-Za-z_0-9]*
  */
 
 /* Replace this placeholder with your own definitions */
-DecInteger = [1-9][0-9]*
-OctInteger = 0 | 0[1-7][0-7]*
+DecInteger = 0 | [1-9][0-9]*
+OctInteger = 0[1-7][0-7]*
 HexInteger = 0[xX][1-9a-fA-F][0-9a-fA-F]*
 
 DecIntegerLiteral = {DecInteger} [uU]?
@@ -67,11 +67,16 @@ LongHexIntegerLiteral = {HexInteger} ( [lL] | [uU][lL] | [lL][uU] )
  */        
 
 /* Replace this placeholder with your own definitions */
-ExponentPart = [eE][+-]?[0-9]+
-Float = [0-9]+ ( \. [0-9]* {ExponentPart}? | {ExponentPart} )
+HexDigit = [0-9a-fA-F]
+HexExpPart = [pP][+-]?[0-9]+
+HexFloat = 0[xX] ( {HexDigit}+ \.? {HexDigit}* | \. {HexDigit}+ ) {HexExpPart}
+HexDoubleLiteral = {HexFloat} [lL]?
+HexFloatLiteral = {HexFloat} [fF]
 
-DoubleLiteral = {Float} [lL]?
-FloatLiteral = {Float} [fF]
+ExponentPart = [eE][+-]?[0-9]+
+Float = ( [0-9]+ ( \. [0-9]* {ExponentPart}? | {ExponentPart} ) | \. [0-9]+ {ExponentPart}? )
+DoubleLiteral = ( {Float} [lL]? | {HexDoubleLiteral} )
+FloatLiteral = ( {Float} [fF] | {HexFloatLiteral} )
 
 %%
 
