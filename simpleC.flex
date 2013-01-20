@@ -38,7 +38,7 @@ WhiteSpace = [ \t\f\r\n\v]
  */
 
 /* Replace this placeholder with your own definitions */
-Identifier = [a-z]
+Identifier = [A-Za-z_][A-Za-z_0-9]*
 
 /* Integer literals: TODO - handle integer literals as described in
  * Section 6.4.4.1 of the ANSI C document. For simplicity, do NOT
