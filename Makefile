@@ -10,6 +10,7 @@ MyLexer.class.intermediate: MyLexer.java MySymbol.java Scanner.java parser.java 
 	javac MyLexer.java
 
 Scanner.java: simpleC.flex
+	rm -f Scanner.java
 	java JFlex.Main simpleC.flex
 
 parser.java sym.java: simpleC.cup.intermediate
