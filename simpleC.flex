@@ -131,15 +131,46 @@ FloatLiteral = ( {Float} [fF] | {HexFloatLiteral} )
   "}"                            { return symbol(RBRACE); }
   "["                            { return symbol(LBRACK); }
   "]"                            { return symbol(RBRACK); }
-  ";"                            { return symbol(SEMICOLON); }
-  ","                            { return symbol(COMMA); }
-  "="                            { return symbol(ASSGN); }
-  "<"                            { return symbol(LT); }
+  "."                            { return symbol(DOT); }
+  "->"                           { return symbol(INDIR_SEL); }
   "++"                           { return symbol(PLUSPLUS); }
+  "--"                           { return symbol(DECREMENT); }
+  "&"                            { return symbol(AMPER); }
+  "*"                            { return symbol(STAR); }
   "+"                            { return symbol(PLUS); }
   "-"                            { return symbol(MINUS); }
+  "~"                            { return symbol(BIT_COMPL); }
+  "!"                            { return symbol(NOT); }
   "/"                            { return symbol(DIV); }
-  "*"                            { return symbol(STAR); }
+  "%"                            { return symbol(MOD); }
+  "<<"                           { return symbol(LSHIFT); }
+  ">>"                           { return symbol(RSHIFT); }
+  "<"                            { return symbol(LT); }
+  ">"                            { return symbol(GT); }
+  "<="                           { return symbol(LTEQ); }
+  ">="                           { return symbol(GTEQ); }
+  "=="                           { return symbol(EQUAL); }
+  "!="                           { return symbol(NOTEQ); }
+  "^"                            { return symbol(BIT_XOR); }
+  "|"                            { return symbol(BIT_OR); }
+  "&&"                           { return symbol(AND); }
+  "||"                           { return symbol(OR); }
+  "?"                            { return symbol(QMARK); }
+  ":"                            { return symbol(COLON); }
+  ";"                            { return symbol(SEMICOLON); }
+  "..."                          { return symbol(ELLIPSIS); }
+  "="                            { return symbol(ASSGN); }
+  "*="                           { return symbol(MULT_ASSGN); }
+  "/="                           { return symbol(DIV_ASSGN); }
+  "%="                           { return symbol(MOD_ASSGN); }
+  "+="                           { return symbol(ADD_ASSGN); }
+  "-="                           { return symbol(SUB_ASSGN); }
+  "<<="                          { return symbol(LSHIFT_ASSGN); }
+  ">>="                          { return symbol(RSHIFT_ASSGN); }
+  "&="                           { return symbol(BITAND_ASSGN); }
+  "^="                           { return symbol(BITXOR_ASSGN); }
+  "|="                           { return symbol(BITOR_ASSGN); }
+  ","                            { return symbol(COMMA); }
 
   
   /* Integer literals: TODO - for any such literal, the token type
