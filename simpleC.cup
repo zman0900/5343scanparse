@@ -16,6 +16,22 @@ parser code  {:
     report_error(message, info);
     throw new RuntimeException("Fatal Syntax Error");
   }
+
+  public String intLitToString(Object i) {
+    if (i instanceof Long) {
+      return i.toString().concat("L");
+    } else {
+      return i.toString();
+    }
+  }
+
+  public String floatLitToString(Object i) {
+    if (i instanceof Float) {
+      return i.toString().concat("f");
+    } else {
+      return i.toString();
+    }
+  }
 :};
 
 terminal INT, DOUBLE, FOR, RETURN, VOID;
@@ -35,28 +51,32 @@ terminal AND, OR, QMARK, COLON, ELLIPSIS, MULT_ASSGN, DIV_ASSGN, MOD_ASSGN;
 terminal ADD_ASSGN, SUB_ASSGN, LSHIFT_ASSGN, RSHIFT_ASSGN, BITAND_ASSGN;
 terminal BITXOR_ASSGN, BITOR_ASSGN;
 
-non terminal Object file, decl_list, decl;
-non terminal Object decl_type, declarator_list, declarator;
-non terminal Object stars, array_dims, array_dim;
+non terminal String file, decl_list, decl;
+non terminal String decl_type, declarator_list, declarator;
+non terminal String stars, array_dims, array_dim;
 
-file ::= decl_list;
+file ::= decl_list:d                                          {: RESULT = d; :};
 
-decl_list ::= decl_list decl
-            | decl;
-decl ::= decl_type declarator_list SEMICOLON;
-declarator_list ::= declarator_list COMMA declarator
-                  | declarator;
-decl_type ::= DOUBLE
-            | FLOAT
-            | LONG
-            | INT;
-declarator ::= stars IDENTIFIER array_dims
-             | stars IDENTIFIER
-             | IDENTIFIER array_dims
-             | IDENTIFIER;
-stars ::= stars STAR
-        | STAR;
-array_dims ::= array_dims array_dim
-             | array_dim;
+decl_list ::= decl_list:l decl:d              {: RESULT = l.concat("\n" + d); :}
+            | decl:d                          {: RESULT = d; :};
+decl ::= decl_type:t declarator_list:l SEMICOLON
+                                        {: RESULT = t.concat(" " + l + ";"); :};
+declarator_list ::= declarator_list:l COMMA declarator:d
+                                              {: RESULT = l.concat(", " + d); :}
+                  | declarator:d              {: RESULT = d; :};
+decl_type ::= DOUBLE                        {: RESULT = new String("double"); :}
+            | FLOAT                         {: RESULT = new String("float"); :}
+            | LONG                          {: RESULT = new String("long"); :}
+            | INT                           {: RESULT = new String("int"); :};
+declarator ::= stars:s IDENTIFIER:i array_dims:d {: RESULT = s.concat(i + d); :}
+             | stars:s IDENTIFIER:i              {: RESULT = s.concat(i); :}
+             | IDENTIFIER:i array_dims:d         {: RESULT = i.concat(d); :}
+             | IDENTIFIER:i                      {: RESULT = i.toString(); :};
+stars ::= stars:r STAR                          {: RESULT = r.concat("*"); :}
+        | STAR                                  {: RESULT = new String("*"); :};
+array_dims ::= array_dims:l array_dim:d              {: RESULT = l.concat(d); :}
+             | array_dim:d                           {: RESULT = d; :};
 array_dim ::= LBRACK RBRACK
-            | LBRACK INTEGER_LITERAL RBRACK;
+               {: RESULT = new String("[]"); :}
+            | LBRACK INTEGER_LITERAL:i RBRACK
+               {: RESULT = new String("[" + parser.intLitToString(i) + "]"); :};
