@@ -34,5 +34,29 @@ terminal LSHIFT, RSHIFT, GT, LTEQ, GTEQ, EQUAL, NOTEQ, BIT_XOR, BIT_OR;
 terminal AND, OR, QMARK, COLON, ELLIPSIS, MULT_ASSGN, DIV_ASSGN, MOD_ASSGN;
 terminal ADD_ASSGN, SUB_ASSGN, LSHIFT_ASSGN, RSHIFT_ASSGN, BITAND_ASSGN;
 terminal BITXOR_ASSGN, BITOR_ASSGN;
-non terminal fake;
-fake ::= INT;
+
+non terminal Object file, decl_list, decl;
+non terminal Object decl_type, declarator_list, declarator;
+non terminal Object stars, array_dims, array_dim;
+
+file ::= decl_list;
+
+decl_list ::= decl_list decl
+            | decl;
+decl ::= decl_type declarator_list SEMICOLON;
+declarator_list ::= declarator_list COMMA declarator
+                  | declarator;
+decl_type ::= DOUBLE
+            | FLOAT
+            | LONG
+            | INT;
+declarator ::= stars IDENTIFIER array_dims
+             | stars IDENTIFIER
+             | IDENTIFIER array_dims
+             | IDENTIFIER;
+stars ::= stars STAR
+        | STAR;
+array_dims ::= array_dims array_dim
+             | array_dim;
+array_dim ::= LBRACK RBRACK
+            | LBRACK INTEGER_LITERAL RBRACK;
