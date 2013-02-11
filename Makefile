@@ -1,13 +1,13 @@
 .PHONY: all clean
 
-all: MyLexer.class MySymbol.class Scanner.class sym.class
+all: Main.class MySymbol.class Scanner.class sym.class
 
-MyLexer.class MySymbol.class Scanner.class sym.class: MyLexer.class.intermediate
+Main.class MySymbol.class Scanner.class sym.class: Main.class.intermediate
 
-.INTERMEDIATE: MyLexer.class.intermediate
-MyLexer.class.intermediate: MyLexer.java MySymbol.java Scanner.java parser.java sym.java
+.INTERMEDIATE: Main.class.intermediate
+Main.class.intermediate: Main.java MySymbol.java Scanner.java parser.java sym.java
 	rm -f *.class
-	javac MyLexer.java
+	javac Main.java
 
 Scanner.java: simpleC.flex
 	rm -f Scanner.java
