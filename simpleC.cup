@@ -54,20 +54,23 @@ terminal BITXOR_ASSGN, BITOR_ASSGN;
 non terminal String file, decl_list, decl;
 non terminal String decl_type, declarator_list, declarator;
 non terminal String stars, array_dims, array_dim;
+non terminal String function, function_name;
 
-file ::= decl_list:d                                          {: RESULT = d; :};
+file ::= decl_list:d function:f               {: RESULT = d.concat("\n" + f); :}
+       | function:f                           {: RESULT = f; :};
 
 decl_list ::= decl_list:l decl:d              {: RESULT = l.concat("\n" + d); :}
             | decl:d                          {: RESULT = d; :};
-decl ::= decl_type:t declarator_list:l SEMICOLON
-                                        {: RESULT = t.concat(" " + l + ";"); :};
+decl ::= decl_type:t COMMA declarator_list:l SEMICOLON
+                                         {: RESULT = t.concat(" " + l + ";"); :}
+       | decl_type:t SEMICOLON           {: RESULT = t.concat(";"); :};
 declarator_list ::= declarator_list:l COMMA declarator:d
                                               {: RESULT = l.concat(", " + d); :}
                   | declarator:d              {: RESULT = d; :};
-decl_type ::= DOUBLE                        {: RESULT = new String("double"); :}
-            | FLOAT                         {: RESULT = new String("float"); :}
-            | LONG                          {: RESULT = new String("long"); :}
-            | INT                           {: RESULT = new String("int"); :};
+decl_type ::= DOUBLE declarator:d      {: RESULT = new String("double " + d); :}
+            | FLOAT declarator:d       {: RESULT = new String("float " + d); :}
+            | LONG declarator:d        {: RESULT = new String("long " + d); :}
+            | INT declarator:d         {: RESULT = new String("int " + d); :};
 declarator ::= stars:s IDENTIFIER:i array_dims:d {: RESULT = s.concat(i + d); :}
              | stars:s IDENTIFIER:i              {: RESULT = s.concat(i); :}
              | IDENTIFIER:i array_dims:d         {: RESULT = i.concat(d); :}
@@ -80,3 +83,16 @@ array_dim ::= LBRACK RBRACK
                {: RESULT = new String("[]"); :}
             | LBRACK INTEGER_LITERAL:i RBRACK
                {: RESULT = new String("[" + parser.intLitToString(i) + "]"); :};
+
+function ::= function_name:n LPAREN RPAREN
+                                                {: RESULT = n.concat("()"); :};
+function_name ::= DOUBLE IDENTIFIER:i
+                            {: RESULT = new String("double " + i.toString()); :}
+                | FLOAT IDENTIFIER:i
+                            {: RESULT = new String("float " + i.toString()); :}
+                | LONG IDENTIFIER:i
+                            {: RESULT = new String("long " + i.toString()); :}
+                | INT IDENTIFIER:i
+                            {: RESULT = new String("int " + i.toString()); :}
+                | VOID IDENTIFIER:i
+                            {: RESULT = new String("void " + i.toString()); :};
