@@ -55,9 +55,11 @@ non terminal String file, decl_list, decl;
 non terminal String decl_type, declarator_list, declarator;
 non terminal String stars, array_dims, array_dim;
 non terminal String function, function_name;
+non terminal String block_stmt, stmt_list, stmt;
 
-file ::= decl_list:d function:f               {: RESULT = d.concat("\n" + f); :}
-       | function:f                           {: RESULT = f; :};
+file ::= decl_list:d function:f block_stmt:b
+                                   {: RESULT = d.concat("\n" + f + "\n" + b); :}
+       | function:f block_stmt:b   {: RESULT = f.concat("\n" + b); :};
 
 decl_list ::= decl_list:l decl:d              {: RESULT = l.concat("\n" + d); :}
             | decl:d                          {: RESULT = d; :};
@@ -96,3 +98,11 @@ function_name ::= DOUBLE IDENTIFIER:i
                             {: RESULT = new String("int " + i.toString()); :}
                 | VOID IDENTIFIER:i
                             {: RESULT = new String("void " + i.toString()); :};
+
+block_stmt ::= LBRACE stmt_list:s RBRACE
+                                  {: RESULT = new String("{\n" + s + "\n}"); :};
+stmt_list ::= stmt_list:l decl:d              {: RESULT = l.concat("\n" + d); :}
+            | decl:d                          {: RESULT = d; :}
+            | stmt_list:l stmt:s              {: RESULT = l.concat("\n" + s); :}
+            | stmt:s                          {: RESULT = s; :};
+stmt ::= block_stmt:b                         {: RESULT = b; :};
