@@ -1,4 +1,4 @@
-CSE5343 Project 1
+CSE5343 Project 2
 Dan Ziemba
 
 To build:
@@ -6,5 +6,5 @@ Ensure JFlex and java_cup are in classpath
 Run make
 
 To run:
-java MyLexer <file.c>
+java Main <file.c>
 
