@@ -57,6 +57,7 @@ non terminal String stars, array_dims, array_dim;
 non terminal String function, function_name;
 non terminal String stmt_list, stmt, block_stmt, iteration_stmt;
 non terminal String return_stmt, expression_stmt;
+non terminal String for_arg_list;
 non terminal String expression, primary_expression, postfix_expression;
 non terminal String unary_expression, mult_expression, add_expression;
 non terminal String shift_expression, rel_expression, equality_expression;
@@ -129,6 +130,26 @@ return_stmt ::= RETURN SEMICOLON
               | RETURN expression:e SEMICOLON
                                 {: RESULT = new String("return " + e + ";"); :};
 expression_stmt ::= expression:e SEMICOLON        {: RESULT = e.concat(";"); :};
+iteration_stmt ::= WHILE LPAREN expression:e RPAREN stmt:s
+                   {: RESULT = new String("while (" + e + ")\n" + s); :}
+                 | DO stmt:s WHILE LPAREN expression:e RPAREN SEMICOLON
+                   {: RESULT = new String("do " + s + " while (" + e + ");"); :}
+                 | FOR LPAREN for_arg_list:l RPAREN stmt:s
+                   {: RESULT = new String("for (" + l + ")\n" + s); :};
+for_arg_list ::= expression:e SEMICOLON expression:f SEMICOLON expression:g
+                                {: RESULT = e.concat("; " + f + "; " + g); :}
+               | SEMICOLON expression:f SEMICOLON expression:g
+                                {: RESULT = new String(" ; " + f + "; " + g); :}
+               | expression:e SEMICOLON expression:f SEMICOLON
+                                {: RESULT = e.concat("; " + f + "; "); :}
+               | expression:e SEMICOLON SEMICOLON
+                                {: RESULT = e.concat("; ; "); :}
+               | SEMICOLON expression:f SEMICOLON
+                                {: RESULT = new String(" ; " + f + "; "); :}
+               | SEMICOLON SEMICOLON expression:g
+                                {: RESULT = new String(" ; ; " + g); :}
+               | SEMICOLON SEMICOLON
+                                {: RESULT = new String(" ; ; "); :};
 
 primary_expression ::= IDENTIFIER:i
                                       {: RESULT = i.toString(); :}
