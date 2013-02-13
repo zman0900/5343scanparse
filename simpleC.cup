@@ -55,7 +55,14 @@ non terminal String file, decl_list, decl;
 non terminal String decl_type, declarator_list, declarator;
 non terminal String stars, array_dims, array_dim;
 non terminal String function, function_name;
-non terminal String block_stmt, stmt_list, stmt;
+non terminal String stmt_list, stmt, block_stmt, iteration_stmt;
+non terminal String return_stmt, expression_stmt;
+non terminal String expression, primary_expression, postfix_expression;
+non terminal String unary_expression, mult_expression, add_expression;
+non terminal String shift_expression, rel_expression, equality_expression;
+non terminal String and_expression, xor_expression, or_expression;
+non terminal String logical_and_expression, logical_or_expression;
+non terminal String assignment_expression;
 
 file ::= decl_list:d function:f block_stmt:b
                                    {: RESULT = d.concat("\n" + f + "\n" + b); :}
@@ -76,7 +83,15 @@ decl_type ::= DOUBLE declarator:d      {: RESULT = new String("double " + d); :}
 declarator ::= stars:s IDENTIFIER:i array_dims:d {: RESULT = s.concat(i + d); :}
              | stars:s IDENTIFIER:i              {: RESULT = s.concat(i); :}
              | IDENTIFIER:i array_dims:d         {: RESULT = i.concat(d); :}
-             | IDENTIFIER:i                      {: RESULT = i.toString(); :};
+             | IDENTIFIER:i                      {: RESULT = i.toString(); :}
+             | stars:s IDENTIFIER:i array_dims:d ASSGN expression:e
+                                   {: RESULT = s.concat(i + d + "=" + e); :}
+             | stars:s IDENTIFIER:i ASSGN expression:e
+                                   {: RESULT = s.concat(i + "=" + e); :}
+             | IDENTIFIER:i array_dims:d ASSGN expression:e
+                                   {: RESULT = i.concat(d + "=" + e); :}
+             | IDENTIFIER:i ASSGN expression:e
+                                   {: RESULT = i.toString().concat("=" + e); :};
 stars ::= stars:r STAR                          {: RESULT = r.concat("*"); :}
         | STAR                                  {: RESULT = new String("*"); :};
 array_dims ::= array_dims:l array_dim:d              {: RESULT = l.concat(d); :}
@@ -105,4 +120,128 @@ stmt_list ::= stmt_list:l decl:d              {: RESULT = l.concat("\n" + d); :}
             | decl:d                          {: RESULT = d; :}
             | stmt_list:l stmt:s              {: RESULT = l.concat("\n" + s); :}
             | stmt:s                          {: RESULT = s; :};
-stmt ::= block_stmt:b                         {: RESULT = b; :};
+stmt ::= block_stmt:s                                         {: RESULT = s; :}
+       | iteration_stmt:s                                     {: RESULT = s; :}
+       | return_stmt:s                                        {: RESULT = s; :}
+       | expression_stmt:s                                    {: RESULT = s; :};
+return_stmt ::= RETURN SEMICOLON
+                                {: RESULT = new String("return;"); :}
+              | RETURN expression:e SEMICOLON
+                                {: RESULT = new String("return " + e + ";"); :};
+expression_stmt ::= expression:e SEMICOLON        {: RESULT = e.concat(";"); :};
+
+primary_expression ::= IDENTIFIER:i
+                                      {: RESULT = i.toString(); :}
+                     | INTEGER_LITERAL:l
+                                      {: RESULT = parser.intLitToString(l); :}
+                     | FLOATING_POINT_LITERAL:l
+                                      {: RESULT = parser.floatLitToString(l); :}
+                     | LPAREN expression:e RPAREN
+                                      {: RESULT = new String("(" + e + ")"); :};
+postfix_expression ::= primary_expression:e
+                                         {: RESULT = e; :}
+                     | postfix_expression:e LBRACK expression:f RBRACK
+                                         {: RESULT = e.concat("[" + f + "]"); :}
+                     | postfix_expression:e PLUSPLUS
+                                         {: RESULT = e.concat("++"); :}
+                     | postfix_expression:e DECREMENT
+                                         {: RESULT = e.concat("--"); :};
+unary_expression ::= postfix_expression:e
+                                      {: RESULT = e; :}
+                   | PLUSPLUS unary_expression:e
+                                      {: RESULT = new String("++").concat(e); :}
+                   | DECREMENT unary_expression:e
+                                      {: RESULT = new String("--").concat(e); :}
+                   | AMPER unary_expression:e
+                                      {: RESULT = new String("&").concat(e); :}
+                   | STAR unary_expression:e
+                                      {: RESULT = new String("*").concat(e); :}
+                   | PLUS unary_expression:e
+                                      {: RESULT = new String("+").concat(e); :}
+                   | MINUS unary_expression:e
+                                      {: RESULT = new String("-").concat(e); :}
+                   | BIT_COMPL unary_expression:e
+                                      {: RESULT = new String("~").concat(e); :}
+                   | NOT unary_expression:e
+                                      {: RESULT = new String("!").concat(e); :};
+mult_expression ::= unary_expression:e
+                                              {: RESULT = e; :}
+                  | mult_expression:e STAR unary_expression:f
+                                              {: RESULT = e.concat("*" + f); :}
+                  | mult_expression:e DIV unary_expression:f
+                                              {: RESULT = e.concat("/" + f); :}
+                  | mult_expression:e MOD unary_expression:f
+                                              {: RESULT = e.concat("%" + f); :};
+add_expression ::= mult_expression:e
+                                              {: RESULT = e; :}
+                 | add_expression:e PLUS mult_expression:f
+                                              {: RESULT = e.concat("+" + f); :}
+                 | add_expression:e MINUS mult_expression:f
+                                              {: RESULT = e.concat("-" + f); :};
+shift_expression ::= add_expression:e
+                                             {: RESULT = e; :}
+                   | shift_expression:e LSHIFT add_expression:f
+                                             {: RESULT = e.concat("<<" + f); :}
+                   | shift_expression:e RSHIFT add_expression:f
+                                             {: RESULT = e.concat(">>" + f); :};
+rel_expression ::= shift_expression:e
+                                             {: RESULT = e; :}
+                 | rel_expression:e LT shift_expression:f
+                                             {: RESULT = e.concat("<" + f); :}
+                 | rel_expression:e GT shift_expression:f
+                                             {: RESULT = e.concat(">" + f); :}
+                 | rel_expression:e LTEQ shift_expression:f
+                                             {: RESULT = e.concat("<=" + f); :}
+                 | rel_expression:e GTEQ shift_expression:f
+                                             {: RESULT = e.concat(">=" + f); :};
+equality_expression ::= rel_expression:e
+                                             {: RESULT = e; :}
+                      | equality_expression:e EQUAL rel_expression:f
+                                             {: RESULT = e.concat("==" + f); :}
+                      | equality_expression:e NOTEQ rel_expression:f
+                                             {: RESULT = e.concat("!=" + f); :};
+and_expression ::= equality_expression:e
+                                             {: RESULT = e; :}
+                 | and_expression:e AMPER equality_expression:f
+                                             {: RESULT = e.concat("||" + f); :};
+xor_expression ::= and_expression:e
+                                             {: RESULT = e; :}
+                 | xor_expression:e BIT_XOR and_expression:f
+                                             {: RESULT = e.concat("||" + f); :};
+or_expression ::= xor_expression:e
+                                             {: RESULT = e; :}
+                | or_expression:e BIT_OR xor_expression:f
+                                             {: RESULT = e.concat("||" + f); :};
+logical_and_expression ::= or_expression:e
+                                             {: RESULT = e; :}
+                         | logical_and_expression:e AND or_expression:f
+                                             {: RESULT = e.concat("||" + f); :};
+logical_or_expression ::= logical_and_expression:e
+                                             {: RESULT = e; :}
+                        | logical_or_expression:e OR logical_and_expression:f
+                                             {: RESULT = e.concat("||" + f); :};
+assignment_expression ::= logical_or_expression:e
+                                             {: RESULT = e; :}
+                       | unary_expression:u ASSGN assignment_expression:e
+                                             {: RESULT = u.concat("=" + e); :}
+                       | unary_expression:u MULT_ASSGN assignment_expression:e
+                                             {: RESULT = u.concat("*=" + e); :}
+                       | unary_expression:u DIV_ASSGN assignment_expression:e
+                                             {: RESULT = u.concat("/=" + e); :}
+                       | unary_expression:u MOD_ASSGN assignment_expression:e
+                                             {: RESULT = u.concat("%=" + e); :}
+                       | unary_expression:u ADD_ASSGN assignment_expression:e
+                                             {: RESULT = u.concat("+=" + e); :}
+                       | unary_expression:u SUB_ASSGN assignment_expression:e
+                                             {: RESULT = u.concat("-=" + e); :}
+                       | unary_expression:u LSHIFT_ASSGN assignment_expression:e
+                                             {: RESULT = u.concat("<<=" + e); :}
+                       | unary_expression:u RSHIFT_ASSGN assignment_expression:e
+                                             {: RESULT = u.concat(">>=" + e); :}
+                       | unary_expression:u BITAND_ASSGN assignment_expression:e
+                                             {: RESULT = u.concat("&=" + e); :}
+                       | unary_expression:u BITXOR_ASSGN assignment_expression:e
+                                             {: RESULT = u.concat("^=" + e); :}
+                       | unary_expression:u BITOR_ASSGN assignment_expression:e
+                                             {: RESULT = u.concat("|=" + e); :};
+expression ::= assignment_expression:e                        {: RESULT = e; :};
